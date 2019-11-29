@@ -1,7 +1,7 @@
 class Sticky {
     constructor (el, className = 'is-sticky') {
         if (!(el instanceof HTMLElement)) {
-            console.error('[Bizjournals] Invalid sticky implementation. Must pass element as first argument.');
+            console.error('[Sticky] Invalid sticky implementation. Must pass element as first argument.');
             return;
         }
 
