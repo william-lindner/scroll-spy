@@ -59,3 +59,12 @@ typings/
 
 # next.js build output
 .next
+
+# php storm ide files
+.idea
+
+# distributables
+/dist
+
+# testing files
+index.html
