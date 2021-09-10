@@ -1,30 +1,46 @@
+let availableActions = null;
+
 /**
  * ScrollSpy class is intended to observe an element and inform on if the scroll is above, below,
  * or right on it.
  */
 class ScrollSpy {
-    constructor (el, delay = 200) {
+    constructor (el, delay = 100) {
         if (!(el instanceof HTMLElement)) {
             throw new Error('Invalid sticky implementation. Must pass element as first argument.');
         }
 
         this.$el = el;
-        this.$actions = { above: [], on: [], below: []};
-        this.$availableActions = Object.keys(this.$actions);
+        this.$actions = { above: [], on: [], below: [] };
         this.$rootElement = document.documentElement;
 
-        let deferrer;
+        this.$delay = delay;
+        this.$deferrer = null;
 
-        document.onscroll = () => {
-            window.clearTimeout(deferrer)
+        availableActions = availableActions || Object.keys(this.$actions);
 
-            deferrer = window.setTimeout(() => this.check(), delay);
-        };
-
-        this.check();
+        document.onscroll = () => this.check();
     }
 
-    check (position) {
+    setDelay(amount) {
+        if(Number.isInteger(amount)) {
+            throw new Error('The delay on the scroll spy must be an integer.');
+        }
+
+        this.$delay = amount;
+
+        return this.check();
+    }
+
+    check () {
+        window.clearTimeout(this.$deferrer)
+
+        this.$deferrer = window.setTimeout(() => this.update(), this.$delay);
+
+        return this;
+    }
+
+    update (position) {
         if(position == null) {
             position = this.position();
         }
@@ -57,10 +73,9 @@ class ScrollSpy {
      *
      * @param when
      * @param fn
-     * @param immediate
      */
-    addAction (when, fn, immediate = true) {
-        if(!  this.$availableActions.includes(when)) {
+    addAction (when, fn) {
+        if(!  availableActions.includes(when)) {
             throw new Error('Actions can only be added above, below, or on.');
         }
 
@@ -70,11 +85,7 @@ class ScrollSpy {
 
         this.$actions[when].push(fn);
 
-        if(immediate && this['$' + when]) {
-            fn(this.$el);
-        }
-
-        return this;
+        return this.check();
     }
 
     /**
@@ -82,7 +93,7 @@ class ScrollSpy {
      * @param which
      */
     runActions(which) {
-        if(!  this.$availableActions.includes(which)) {
+        if(! availableActions.includes(which)) {
             throw new Error('Cannot run actions which are not supported.');
         }
 
