@@ -3,7 +3,7 @@
  * or right on it.
  */
 class ScrollSpy {
-    constructor (el, delay = 100) {
+    constructor (el, delay = 200) {
         if (!(el instanceof HTMLElement)) {
             throw new Error('Invalid sticky implementation. Must pass element as first argument.');
         }
@@ -11,54 +11,33 @@ class ScrollSpy {
         this.$el = el;
         this.$actions = { above: [], on: [], below: []};
         this.$availableActions = Object.keys(this.$actions);
-
-        this.$deferer = null;
         this.$rootElement = document.documentElement;
 
-        this.$top = 0;
-        this.$above = false;
-        this.$below = false;
-        this.$on = false;
+        let deferrer;
 
         document.onscroll = () => {
-            if(this.$deferer) {
-                window.clearTimeout(this.$deferer);
-            }
+            window.clearTimeout(deferrer)
 
-            this.$deferer = window.setTimeout(() => this.position().check(), delay);
+            deferrer = window.setTimeout(() => this.check(), delay);
         };
 
-        this.position().check();
+        this.check();
     }
 
-    set on (newValue) {
-        this.$on = newValue;
+    check (position) {
+        if(position == null) {
+            position = this.position();
+        }
 
-        if(newValue) {
+        position = Math.round(position);
+
+        if(this.$rootElement.scrollTop === position) {
             this.runActions('on');
-        }
-    }
-
-    set below (newValue) {
-        this.$below = newValue;
-
-        if(newValue) {
+        } else if(this.$rootElement.scrollTop > position) {
             this.runActions('below');
-        }
-    }
-
-    set above (newValue) {
-        this.$above = newValue;
-
-        if(newValue) {
+        } else {
             this.runActions('above');
         }
-    }
-
-    check () {
-        this.on = this.$rootElement === this.$top;
-        this.below = this.$rootElement.scrollTop > this.$top;
-        this.above = ! this.$on && ! this.$below;
 
         return this;
     }
@@ -71,13 +50,7 @@ class ScrollSpy {
 
         newTop = newTop < 0 ? 0 : newTop;
 
-        if (this.$top === newTop) {
-            return this;
-        }
-
-        this.$top = newTop;
-
-        return this;
+        return newTop;
     }
 
     /**
@@ -86,7 +59,7 @@ class ScrollSpy {
      * @param fn
      * @param immediate
      */
-    addAction (when, fn, immediate = false) {
+    addAction (when, fn, immediate = true) {
         if(!  this.$availableActions.includes(when)) {
             throw new Error('Actions can only be added above, below, or on.');
         }
