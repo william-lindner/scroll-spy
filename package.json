@@ -21,10 +21,10 @@
   },
   "homepage": "https://github.com/william-lindner/scroll-spy#readme",
   "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/preset-env": "^7.8.7",
+    "@babel/core": "^7.15.5",
+    "@babel/preset-env": "^7.15.6",
     "@rollup/plugin-node-resolve": "^7.1.1",
-    "rollup": "^2.0.2",
+    "rollup": "^2.56.3",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-babel-minify": "^9.1.1",
     "rollup-plugin-delete": "^1.2.0",
