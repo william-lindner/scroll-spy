@@ -73,6 +73,8 @@ class ScrollSpy {
         if(immediate && this['$' + when]) {
             fn(this.$el);
         }
+
+        return this;
     }
 
     /**
@@ -87,6 +89,18 @@ class ScrollSpy {
         for(let fn of this.$actions[which]) {
             fn(this.$el);
         }
+    }
+
+    whenAbove(fn) {
+        return this.addAction('above', fn);
+    }
+
+    whenBelow(fn) {
+        return this.addAction('below', fn);
+    }
+
+    whenOn(fn) {
+        return this.addAction('on', fn);
     }
 }
 
