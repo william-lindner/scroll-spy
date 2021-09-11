@@ -63,6 +63,9 @@ typings/
 # php storm ide files
 .idea
 
+# mac os storage file
+.ds_store
+
 # distributables
 /dist
 
