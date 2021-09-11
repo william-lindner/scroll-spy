@@ -3,6 +3,7 @@ import babel from 'rollup-plugin-babel';
 import filesize from 'rollup-plugin-filesize';
 import del from 'rollup-plugin-delete';
 import minify from 'rollup-plugin-babel-minify';
+import pkg from './package.json';
 
 export default {
     input: 'src/scrollspy.js',
@@ -17,7 +18,7 @@ export default {
             format: 'esm',
         },
         {
-            file: 'dist/scrollspy.umd.js',
+            file: 'build/scrollspy@' + pkg.version + '.js',
             format: 'umd',
             name: 'ScrollSpy'
         }
