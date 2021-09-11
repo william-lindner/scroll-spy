@@ -1,7 +1,7 @@
 {
   "name": "@gimmick/scroll-spy",
   "version": "0.0.1",
-  "description": "A class to setup a scroll observer on an element and respond to it's position.",
+  "description": "A class to setup a scroll observer on an element and respond to its position.",
   "main": "dist/scrollspy.cjs.js",
   "files": [
     "dist/*"
