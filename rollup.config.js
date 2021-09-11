@@ -17,13 +17,13 @@ export default {
             format: 'esm',
         },
         {
-            file: 'public/scrollspy.js',
+            file: 'public/scrollspy.min.js',
             format: 'umd',
             name: 'ScrollSpy'
         }
     ],
     plugins: [
-        del({ targets: 'dist/*' }),
+        del({ targets: ['dist/*', 'public/*'] }),
         filesize(),
         resolve(),
         babel({
