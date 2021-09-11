@@ -17,7 +17,7 @@ export default {
             format: 'esm',
         },
         {
-            file: 'dist/scrollspy.js',
+            file: 'public/scrollspy.js',
             format: 'umd',
             name: 'ScrollSpy'
         }
