@@ -1,9 +1,8 @@
 import resolve from '@rollup/plugin-node-resolve';
-import babel from 'rollup-plugin-babel';
+import { babel } from '@rollup/plugin-babel';
 import filesize from 'rollup-plugin-filesize';
 import del from 'rollup-plugin-delete';
-import minify from 'rollup-plugin-babel-minify';
-import pkg from './package.json';
+import { terser } from "rollup-plugin-terser";
 
 export default {
     input: 'src/scrollspy.js',
@@ -30,10 +29,14 @@ export default {
         babel({
             exclude: 'node_modules/**'
         }),
-        minify({
-            removeConsole: true,
-            removeDebugger: true,
-            comments: false
+        terser({
+            compress: {
+                drop_console: true,
+                drop_debugger: true,
+                dead_code: true
+            },
+            mangle: true,
+            keep_classnames: false,
         })
     ]
 };
