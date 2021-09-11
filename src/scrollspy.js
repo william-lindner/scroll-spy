@@ -6,7 +6,7 @@ class ScrollSpy {
      * @param {HTMLElement} el
      * @param {number} delay
      */
-    constructor (el, delay = 100) {
+    constructor(el, delay = 100) {
         if (! (el instanceof HTMLElement)) {
             throw new Error('Invalid sticky implementation. Must pass element as first argument.');
         }
@@ -42,7 +42,7 @@ class ScrollSpy {
      *
      * @returns {ScrollSpy}
      */
-    update () {
+    update() {
         let documentEl = document.documentElement,
             newDocStart = documentEl.scrollTop,
             newClientRel = this.$el.getBoundingClientRect(),
@@ -79,8 +79,8 @@ class ScrollSpy {
      * @param {string} which
      * @param {function} fn
      */
-    addAction (which, fn) {
-        if(!  this.$actions[which]) {
+    addAction(which, fn) {
+        if(! this.$actions[which]) {
             throw new Error('The action provided is not available.');
         }
 
