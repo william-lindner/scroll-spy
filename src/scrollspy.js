@@ -1,117 +1,163 @@
-let availableActions = null;
-
-/**
- * ScrollSpy class is intended to observe an element and inform on if the scroll is above, below,
- * or right on it.
- */
 class ScrollSpy {
+    /**
+     * ScrollSpy class is intended to observe an element and run actions when the element
+     * meets the criterion of the position.
+     *
+     * @param {HTMLElement} el
+     * @param {number} delay
+     */
     constructor (el, delay = 100) {
-        if (!(el instanceof HTMLElement)) {
+        if (! (el instanceof HTMLElement)) {
             throw new Error('Invalid sticky implementation. Must pass element as first argument.');
         }
 
-        this.$el = el;
-        this.$actions = { above: [], on: [], below: [] };
-        this.$rootElement = document.documentElement;
-
-        this.$delay = delay;
-        this.$deferrer = null;
-
-        availableActions = availableActions || Object.keys(this.$actions);
-
-        document.onscroll = () => this.check();
-    }
-
-    setDelay(amount) {
-        if(Number.isInteger(amount)) {
+        if(! Number.isInteger(delay)) {
             throw new Error('The delay on the scroll spy must be an integer.');
         }
 
-        this.$delay = amount;
+        this.$el = el;
+        this.$actions = { above: [], on: [], below: [], inView: [], notInView: [] };
 
-        return this.check();
+        let deferrer = null;
+
+        window.setTimeout(() => {
+            this.update();
+
+            window.setTimeout(() => {
+                window.addEventListener('scroll', () => {
+                    window.clearTimeout(deferrer);
+
+                    deferrer = window.setTimeout(() => this.update(), delay);
+                }, {
+                    capture: false,
+                    passive: true
+                });
+            }, 1);
+        }, 1);
     }
 
-    check () {
-        window.clearTimeout(this.$deferrer)
+    /**
+     * Checks the position of the element and runs the actions that meet the
+     * necessary criteria.
+     *
+     * @returns {ScrollSpy}
+     */
+    update () {
+        let documentEl = document.documentElement,
+            newDocStart = documentEl.scrollTop,
+            newClientRel = this.$el.getBoundingClientRect(),
+            newClientTop = newClientRel.y || newClientRel.top,
+            newTop = newClientTop + newDocStart;
 
-        this.$deferrer = window.setTimeout(() => this.update(), this.$delay);
+        newTop =  Math.round(newTop < 0 ? 0 : newTop);
 
-        return this;
-    }
-
-    update (position) {
-        if(position == null) {
-            position = this.position();
-        }
-
-        position = Math.round(position);
-
-        if(this.$rootElement.scrollTop === position) {
+        if(documentEl.scrollTop === newTop) {
             this.runActions('on');
-        } else if(this.$rootElement.scrollTop > position) {
+        } else if(documentEl.scrollTop > newTop) {
             this.runActions('below');
         } else {
             this.runActions('above');
         }
 
+        if(
+            newClientRel.top >= 0 &&
+            newClientRel.left >= 0 &&
+            newClientRel.bottom <= (window.innerHeight || documentEl.clientHeight) &&
+            newClientRel.right <= (window.innerWidth || documentEl.clientWidth)
+        ) {
+            this.runActions('inView');
+        } else {
+            this.runActions('notInView');
+        }
+
         return this;
     }
 
-    position () {
-        let newDocStart = this.$rootElement.scrollTop,
-            newClientRel = this.$el.getBoundingClientRect(),
-            newClientTop = newClientRel.y || newClientRel.top,
-            newTop = newClientTop + newDocStart;
-
-        newTop = newTop < 0 ? 0 : newTop;
-
-        return newTop;
-    }
-
     /**
+     * Adds an action of the provided type.
      *
-     * @param when
-     * @param fn
+     * @param {string} which
+     * @param {function} fn
      */
-    addAction (when, fn) {
-        if(!  availableActions.includes(when)) {
-            throw new Error('Actions can only be added above, below, or on.');
+    addAction (which, fn) {
+        if(!  this.$actions[which]) {
+            throw new Error('The action provided is not available.');
         }
 
         if(typeof fn !== 'function') {
             throw new Error('Cannot add action that is not a function.');
         }
 
-        this.$actions[when].push(fn);
+        this.$actions[which].push(fn);
 
-        return this.check();
+        return this;
     }
 
     /**
+     * Runs the actions of the provided type.
      *
-     * @param which
+     * @param {string} which
      */
     runActions(which) {
-        if(! availableActions.includes(which)) {
+        if(! this.$actions[which]) {
             throw new Error('Cannot run actions which are not supported.');
         }
 
         for(let fn of this.$actions[which]) {
-            fn(this.$el);
+            window.setTimeout(fn.bind(this.$el), 0);
         }
     }
 
+    /**
+     * Add an action for when the top of the element is above the top of
+     * the screen.
+     *
+     * @param {function} fn
+     * @returns {ScrollSpy}
+     */
     whenAbove(fn) {
         return this.addAction('above', fn);
     }
 
+    /**
+     * Add an action for when the top of the element is now below the top
+     * of the screen.
+     *
+     * @param {function} fn
+     * @returns {ScrollSpy}
+     */
     whenBelow(fn) {
         return this.addAction('below', fn);
     }
 
+    /**
+     * Add an action for when top of the screen is exactly on the element.
+     *
+     * @param {function} fn
+     * @returns {ScrollSpy}
+     */
     whenOn(fn) {
         return this.addAction('on', fn);
+    }
+
+    /**
+     * Add an action for when the element is in view.
+     *
+     * @param {function} fn
+     * @returns {ScrollSpy}
+     */
+    whenInView(fn) {
+        return this.addAction('inView', fn);
+    }
+
+    /**
+     * Add an action for when the element is not in view.
+     *
+     * @param {function} fn
+     * @returns {ScrollSpy}
+     */
+    whenNotInView(fn) {
+        return this.addAction('notInView', fn);
     }
 }
 
